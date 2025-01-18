@@ -2,7 +2,7 @@ from app import templates
 from fastapi import APIRouter, Request
 from fastapi.staticfiles import StaticFiles
 
-router = APIRouter(prefix="/home")
+router = APIRouter(prefix="/laps")
 router.mount("/static", StaticFiles(directory="../static"), name="static")
 
 @router.get(path="")
