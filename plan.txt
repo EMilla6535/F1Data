@@ -1,0 +1,36 @@
++Home
+little description of the app.
+possibly show the current GP and/or next GP and hours etc.
+  - if not internet, show no internet connection
+possibly show all downloaded data folders if any
+
++Download data
+select year -> droplist, selectbox in streamlit
+  -if internet connection: continue
+    -get the names of all current available GPs
+    -use a selectbox to pick one
+    -show form with fields for:
+      -selecting one or more drivers -> selectbox(multi)
+      -selecting one or more sessions -> checkboxes(only available)
+      -selecting one or more data types -> checkboxes
+      -submit button
+  -else: show message internet connection needed
+
++Pace analisys
+select or input name of the folder/GP
+check availabilty
+  -load or input circuit details
+  -download or load list of drivers
+    -show sessions
+      -show stints with lap times as pills or equivalent
+      -add a checkbox(or something) to select all lap times of a stint
+    -add a plot button that plot a matplotlib chart
+    -add a mechanism to save average and variation for individual drivers to later plot a comparison of averages of each driver.
+
++Telemetry analisys(not implemented yet)
+select or input name of the folder/GP
+check availability
+  -load or input circuit details
+  -download or load list of drivers
+  ? select one or more laps
+  ? plot them
