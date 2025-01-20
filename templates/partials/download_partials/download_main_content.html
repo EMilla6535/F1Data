@@ -13,18 +13,19 @@
 
     <div class="dropdown">
         <label for="year">Select a year:</label>
-        <select id="year" required hx-get="/download/year" hx-trigger="change">
+        <select id="year" name="year" hx-get="/downloads" hx-target="#gp-select" required>
             <option value="" disabled selected hidden>Select an option.</option>
             <!-- Get the list of years from python/fastapi -->
              {% for year in years %}
-                <option value="{{ year }}">{{ year }}</option>
+                <option value="{{ year }}" hx-get="/download" hx-trigger="click">{{ year }}</option>
              {% endfor %}
         </select>
     </div>
+    {# if gps #}
+    <div class="dropdown" id="gp-select"></div>
+    {# endif #}
     <!-- Condition the other elements to the change of year -->
     <!-- Load the using htmx -->
-     {% block gp_selector %}
-     {% endblock %}
 </div>
 <div class="download-container">
     <p>Place to post messages</p>

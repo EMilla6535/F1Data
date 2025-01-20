@@ -12,9 +12,3 @@ function toggleSidebar(){
         //mainContent.style.marginLeft = '0';
     }
 }
-function setActiveSidebar(new_id){
-    var actual_active_item = document.getElementsByClassName("active")[0]
-    var new_active_item = document.getElementById(new_id)
-    actual_active_item.setAttribute('class', '')
-    new_active_item.setAttribute('class', 'active')
-}

@@ -5,15 +5,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>F1 Data Analisys</title>
         <link rel="stylesheet" type="text/css" href="../static/css/new_style.css">
+        <script src="../static/js/htmx.min.js"></script>
         <script src="../static/js/funcs.js"></script>
     </head>
     <body>
         <div class="sidebar" id="sidebar">
             <button class="hide-button" onclick="toggleSidebar()">Hide</button><!-- change to an image -->
-            <a id="home" class="{{ classes.home }}" href="/home" hx-get="/home" hx-trigger="click" hx-target="#main_content" hx-swap="innerHTML">Home</a>
-            <a id="download"class="{{ classes.download }}" href="/download" hx-get="/download" hx-trigger="click" hx-target="#main_content" hx-swap="innerHTML">Download Data</a>
-            <a id="laps" class="{{ classes.laps }}" href="/laps" hx-get="/laps" hx-trigger="click" hx-target="#main_content" hx-swap="innerHTML">Lap Analisys</a>
-            <a id="telemetry" class="{{ classes.telemetry }}" href="/telemetry" hx-get="/telemetry" hx-trigger="click" hx-target="#main_content" hx-swap="innerHTML">Telemetry</a>
+            <a id="home" class="{{ classes.home }}" href="/home">Home</a>
+            <a id="download"class="{{ classes.download }}" href="/download">Download Data</a>
+            <a id="laps" class="{{ classes.laps }}" href="/laps">Lap Analisys</a>
+            <a id="telemetry" class="{{ classes.telemetry }}" href="/telemetry">Telemetry</a>
         </div>
         <button class="show-button" id="show-button" onclick="toggleSidebar()">></button><!-- Change to an image -->
         <div class="main-content" id="main_content">
