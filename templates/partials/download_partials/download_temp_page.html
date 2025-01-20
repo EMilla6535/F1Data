@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .container {
+            width: 50%;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        .dropdown, .checkbox-group, .button {
+            margin-bottom: 20px;
+        }
+        select, input[type="checkbox"] {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        /*select:required:invalid{
+            color: #999;
+        }
+        option[value=""][disabled]{
+            display: none;
+        }*/
+        .checkbox-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .checkbox-subgroup{
+            width: 50%;
+            padding: 10px;
+        }
+        .button {
+            text-align: center;
+        }
+        .button button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .button button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Download Data</h1>
+        <p>Get new data from <a href="https://openf1.com" style="color: #007bff;">OpenF1</a>.</p>
+        <p>- Indicate the Grand Prix data that you want to download.</p>
+        <p>- Select one or more sessions.</p>
+        <p>- Select one or more drivers.</p>
+        <p>Note: the data is downloaded from OpenF1 as JSON files. If there is an error while downloading, you could try to download again but some data may not be available.</p>
+        
+        <div class="dropdown">
+            <label for="year">Select a year:</label>
+            <select id="year" required>
+                <option value="" disabled selected hidden>Select a year...</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+            </select>
+        </div>
+        
+        <div class="dropdown">
+            <label for="grand-prix">Select a Grand Prix:</label>
+            <select id="grand-prix">
+                <option value="formula-1-stc-saudi-arabian-grand-prix-2024">FORMULA 1 STC SAUDI ARABIAN GRAND PRIX 2024</option>
+            </select>
+        </div>
+        
+        <div class="dropdown">
+            <label for="drivers">Select one or more drivers:</label>
+            <select id="drivers" multiple="multiple" required>
+                <option value="" disabled selected hidden>Choose an option...</option>
+                <option value="VER">VER</option>
+                <option value="PER">PER</option>
+                <option value="LEC">LEC</option>
+                <option value="SAI">SAI</option>
+            </select>
+        </div>
+        
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="session" value="practice-1"> Practice 1</label>
+            <label><input type="checkbox" name="session" value="practice-2-sprint-qualy"> Practice 2 / Sprint Qualy</label>
+            <label><input type="checkbox" name="session" value="practice-3-sprint"> Practice 3 / Sprint</label>
+            <label><input type="checkbox" name="session" value="qualifying"> Qualifying</label>
+            <label><input type="checkbox" name="session" value="race"> Race</label>
+            <label><input type="checkbox" name="data" value="laps"> laps</label>
+            <label><input type="checkbox" name="data" value="drivers"> drivers</label>
+            <label><input type="checkbox" name="data" value="car_data"> car_data</label>
+            <label><input type="checkbox" name="data" value="location"> location</label>
+            <label><input type="checkbox" name="data" value="stints"> stints</label>
+        </div>
+        
+        <div class="button">
+            <button>Download data</button>
+        </div>
+    </div>
+    <div>
+        <div>
+            <h2>Placeholder title</h2>
+            <p>Placeholder text to be replaced with something else.</p>
+        </div>
+    </div>
+</body>
+</html>

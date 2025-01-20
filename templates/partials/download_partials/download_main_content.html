@@ -1,0 +1,32 @@
+{% extends "././home.html" %}
+{% block content %}
+<div class="download-container">
+    <h1>Download Data</h1>
+    <p>Get new data from OpenF1.</p>
+    <p>- Select a year.</p>
+    <p>- Select an available Grand Prix.</p>
+    <p>- Choose one or more drivers.</p>
+    <p>- Check the session/s and the type of data.</p>
+    <p>Note: the data is dowloaded from <a href="">OpenF1</a> as JSON files.<br>
+    If there is an error while downloading, there is a chance that<br>
+    the data may not be available.</p>
+
+    <div class="dropdown">
+        <label for="year">Select a year:</label>
+        <select id="year" required hx-get="/download/year" hx-trigger="change">
+            <option value="" disabled selected hidden>Select an option.</option>
+            <!-- Get the list of years from python/fastapi -->
+             {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+             {% endfor %}
+        </select>
+    </div>
+    <!-- Condition the other elements to the change of year -->
+    <!-- Load the using htmx -->
+     {% block gp_selector %}
+     {% endblock %}
+</div>
+<div class="download-container">
+    <p>Place to post messages</p>
+</div>
+{% endblock %}

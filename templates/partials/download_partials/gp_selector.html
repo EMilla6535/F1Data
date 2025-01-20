@@ -1,0 +1,19 @@
+{% extends "dowload_main_content.html" %}
+{% block gp_selector %}
+<div class="dropdown">
+    <label for="grand-prix">Select a Grand Prix.</label>
+    <select id="grand-prix" required hx-get="download/gp" hx-trigger="change">
+        <option value="" disabled selected hidden>Choose an option...</option>
+        <!-- Get a list with all the available GPs. -->
+        <!-- The variable gps is a dict with key=html_value and value=tag -->
+        <!-- html_value is the name of the Grand Prix with spaces replaced by '-' -->
+        <!-- tag is the name of the Grand Prix in caps -->
+        {% for html_value, tag in gps.items %}
+            <option value="{{ html_value }}">{{ tag }}</option>
+        {% endfor %}
+    </select>
+</div>
+<!-- Condition the driver selection to the change in Grand Prix -->
+{% block driver_selector %}
+{% endblock %}
+{% endblock %}

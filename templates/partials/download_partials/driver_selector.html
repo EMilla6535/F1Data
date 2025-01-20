@@ -1,0 +1,29 @@
+{% extends "gp_selector.html" %}
+{% block driver_selector %}
+<!-- Maybe change this for a form -->
+<div class="dropdown">
+    <label for="drivers">Select one or more drivers.</label>
+    <select id="drivers" required><!-- Multiple or add a tag to select ALL -->
+        <option value="" disabled selected hidden>Choose an option...</option>
+        <!-- Get a list of all available drivers, plus maybe an extra tag for ALL -->
+        {% for driver in drivers %}
+        <option value="{{ driver }}">{{ driver }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="checkbox-group">
+    <input type="checkbox" name="session" value="fp1">Practice 1
+    <input type="checkbox" name="session" value="fp2-spqualy">Practice 2 / Sprint Qualifying
+    <input type="checkbox" name="session" value="fp3-sprint">Practice 3 / Sprint
+    <input type="checkbox" name="session" value="qualifying">Qualifying
+    <input type="checkbox" name="session" value="race">Race
+    <input type="checkbox" name="data" value="laps">laps
+    <input type="checkbox" name="data" value="drivers">drivers
+    <input type="checkbox" name="data" value="car_data">car_data
+    <input type="checkbox" name="data" value="location">location
+    <input type="checkbox" name="data" value="stints">stints
+</div>
+<div class="submit-button">
+    <button>Download data</button>
+</div>
+{% endblock %}

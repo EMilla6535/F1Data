@@ -11,4 +11,4 @@ async def get_home_page(request: Request):
     classes = {section: '' for section in sections}
     classes['laps'] = 'active'
     context = {"request": request, 'classes': classes}
-    return templates.TemplateResponse("partials/laps_main_content.html", context)
+    return templates.TemplateResponse("partials/laps_partials/laps_main_content.html", context)

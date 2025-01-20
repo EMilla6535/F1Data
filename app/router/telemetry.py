@@ -11,4 +11,4 @@ async def get_home_page(request: Request):
     classes = {section: '' for section in sections}
     classes['telemetry'] = 'active'
     context = {"request": request, 'classes': classes}
-    return templates.TemplateResponse("partials/telemetry_main_content.html", context)
+    return templates.TemplateResponse("partials/telemetry_partials/telemetry_main_content.html", context)

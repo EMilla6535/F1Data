@@ -1,3 +1,6 @@
+/*
+Home main styles
+*/
 body 
 { 
     margin: 0; 
@@ -67,4 +70,41 @@ body
     position: absolute; 
     left: 0; 
     top: 10px; 
+}
+/*
+Download styles
+*/
+.download-container
+{
+    width: 50%;
+    padding: 20px
+}
+.dropdown
+{
+    margin-bottom: 20px;
+}
+select
+{
+    background-color: #333;
+    color: #FFF;
+    border: 1px solid #555;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.submit-button
+{
+    text-align: center;
+}
+.submit-button button
+{
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+.submit-button button:hover
+{
+    background-color: #0056b3;
 }
