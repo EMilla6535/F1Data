@@ -20,9 +20,10 @@
         </select>
     </div>
     <div class="dropdown" id="gp-select">
-        {% if gps %}
-            {% include "partials/download_partials/gp_selector" %}
-        {% endif %}
+        {% if gps %}{% endif %}
+    </div>
+    <div id="driver-select">
+        {% if drivers %}{% endif %}
     </div>
     <!-- Condition the other elements to the change of year -->
     <!-- Load the using htmx -->

@@ -1,10 +1,8 @@
-{% extends "./gp_selector.html" %}
-{% block driver_selector %}
 <!-- Maybe change this for a form -->
 <div class="dropdown">
     <label for="drivers">Select one or more drivers.</label>
     <select id="drivers" required><!-- Multiple or add a tag to select ALL -->
-        <option value="" disabled selected hidden>Choose an option...</option>
+        <option value="ALL">ALL</option>
         <!-- Get a list of all available drivers, plus maybe an extra tag for ALL -->
         {% for driver in drivers %}
         <option value="{{ driver }}">{{ driver }}</option>
@@ -26,4 +24,3 @@
 <div class="submit-button">
     <button>Download data</button>
 </div>
-{% endblock %}

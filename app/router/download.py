@@ -23,9 +23,23 @@ async def get_main_download(request: Request):
 @router.get(path="/gp-select")
 async def get_download_gp(request: Request, year: int):
     # get a list of drivers acronyms from the GP
-    gps = {'formula-1-bahrain-grand-prix-2024': "FORMULA 1 BAHRAIN GRAND PRIX 2024",
-           'formula-1-stc-saudi-arabian-grand-prix-2024': "FORMULA 1 STC SAUDI ARABIAN GRAND PRIX 2024"}
+    if year == 2024:
+        gps = {'formula-1-bahrain-grand-prix-2024': "FORMULA 1 BAHRAIN GRAND PRIX 2024",
+               'formula-1-stc-saudi-arabian-grand-prix-2024': "FORMULA 1 STC SAUDI ARABIAN GRAND PRIX 2024"}
+    else:
+        gps = {'formula-1-lenovo-chinese-grand-prix-2023': "FORMULA 1 LENOVO CHINESE GRAND PRIX 2023",
+               'formula-1-heineken-0-las-vegas-grand-prix-2023': "FORMULA 1 HEINEKEN 0 LAS VEGAS GRAND PRIX 2023"}
     context["request"] = request
     context["gps"] = gps
     
     return templates.TemplateResponse("partials/download_partials/gp_selector.html", context)
+
+@router.get(path="/driver-select")
+async def get_download_drivers(request: Request, grandprix: str):
+    # get all the drivers found in the gp
+    # maybe use a dict {'ACRONYM': number}
+    drivers = ["VER", "PER", "SAI", "LEC"]
+    context["request"] = request
+    context["drivers"] = drivers
+
+    return templates.TemplateResponse("partials/download_partials/driver_selector.html", context)
