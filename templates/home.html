@@ -18,7 +18,8 @@
         </div>
         <button class="show-button" id="show-button" onclick="toggleSidebar()">></button><!-- Change to an image -->
         <div class="main-content" id="main_content">
-            {% block content %}{% endblock %}
+            {# block content %}{% endblock #}
+            {% include content %}
         </div>
     </body>
 </html>

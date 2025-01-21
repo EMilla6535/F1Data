@@ -11,5 +11,5 @@ async def get_home_page(request: Request):
     # return part of the home page
     classes = {section: '' for section in sections}
     classes['home'] = 'active'
-    context = {"request": request, 'classes': classes}
-    return templates.TemplateResponse("partials/home_content.html", context)
+    context = {"request": request, 'content': "partials/home_content.html", 'classes': classes}
+    return templates.TemplateResponse("home.html", context)
