@@ -1,6 +1,7 @@
 <label for="grand-prix">Select a Grand Prix.</label>
-<select id="grand-prix" name="grandprix" hx-get="/download/driver-select" hx-target="#driver-select" required>
-{% for key, value in gps.items() %}
+<select id="grand-prix" name="meetingkey" hx-get="/download/driver-select" hx-target="#driver-select" required>
+    <option value="" disabled selected hidden>Select an option.</option>
+    {% for key, value in gps.items() %}
     <option value="{{ key }}">{{ value }}</option>
 {% endfor %}
 </select>
