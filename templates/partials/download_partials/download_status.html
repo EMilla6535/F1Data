@@ -1,4 +1,13 @@
 <p>{{ message }}</p>
+{% if queue %}
+<form hx-post="/download/download-data" hx-swap="outerHTML" hx-select-oob="p:beforeend">
+    {% for q in queue %}
+        <input type="hidden" name="params" value="{{ q }}">
+    {% endfor %}
+</form>
+{% endif %}
+
+
 {% if retry %}
 <button class="submit-button">Retry</button>
 {% endif %}
