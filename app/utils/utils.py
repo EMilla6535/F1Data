@@ -54,3 +54,14 @@ def updateFile(url, filename, check_for_update=True):
             with open(filename, 'w') as outfile:
                 json.dump(online_data, outfile)
             time.sleep(5)
+
+def getDriversList(meeting_key: int):
+    drivers_url = "https://api.openf1.org/v1/drivers?meeting_key=" + str(meeting_key)
+    drivers_in_meeting = loadDataFromUrl(drivers_url)
+    drivers = {}
+    for item in drivers_in_meeting:
+        driver_acronym = item['name_acronym']
+        if driver_acronym not in drivers:
+            drivers[driver_acronym] = item['driver_number']
+
+    return drivers

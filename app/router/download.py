@@ -1,5 +1,5 @@
 from app import templates, sections
-from app.utils.utils import loadDataFromUrl, loadDataFromDisk, updateFile
+from app.utils.utils import loadDataFromUrl, loadDataFromDisk, updateFile, getDriversList
 from fastapi import APIRouter, Request, Form, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
@@ -37,22 +37,22 @@ async def get_download_gp(request: Request, year: int):
     
     return templates.TemplateResponse("partials/download_partials/gp_selector.html", context)
 
-def get_drivers_list(meeting_key: int):
-    drivers_url = "https://api.openf1.org/v1/drivers?meeting_key=" + str(meeting_key)
-    drivers_in_meeting = loadDataFromUrl(drivers_url)
-    drivers = {}
-    for item in drivers_in_meeting:
-        driver_acronym = item['name_acronym']
-        if driver_acronym not in drivers:
-            drivers[driver_acronym] = item['driver_number']
+#def get_drivers_list(meeting_key: int):
+#    drivers_url = "https://api.openf1.org/v1/drivers?meeting_key=" + str(meeting_key)
+#    drivers_in_meeting = loadDataFromUrl(drivers_url)
+#    drivers = {}
+#    for item in drivers_in_meeting:
+#        driver_acronym = item['name_acronym']
+#        if driver_acronym not in drivers:
+#            drivers[driver_acronym] = item['driver_number']
 
-    return drivers
+#    return drivers
 
 
 @router.get(path="/driver-select")
 async def get_download_drivers(request: Request, meetingkey: int):
     # get all the drivers found in the gp
-    drivers = get_drivers_list(meetingkey)
+    drivers = getDriversList(meetingkey)
 
     url_path = f"https://api.openf1.org/v1/sessions?meeting_key={meetingkey}"
     session_data = loadDataFromUrl(url_path)
@@ -100,7 +100,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         # If driver == 0 -> All drivers; else the selected driver
         if data_obj["driver"] == "0":
-            drivers_numbers = get_drivers_list(meeting_key)
+            drivers_numbers = getDriversList(meeting_key)
             drivers_numbers = [int(dn) for dn in drivers_numbers.values()]
         else:
             drivers_numbers = [int(data_obj["driver"])]
@@ -112,11 +112,10 @@ async def websocket_endpoint(websocket: WebSocket):
         
         get_params = f"year={year}&meeting_key={meeting_key}"
 
-        # Meetinf info
+        # Meeting info
         meeting_filename = f"Meeting_{year}_{meeting_key}.json"
         url_path = f"https://api.openf1.org/v1/meetings?{get_params}"
         filename = path + '/' + meeting_filename
-        print(filename)
         updateFile(url_path, filename)
 
         # Session info
