@@ -57,7 +57,7 @@
             sessions: selected_sessions,
             data_field: selected_data
         }
-        if (selected_data.length == 0 && selected_sessions.length == 0){
+        if (selected_data.length > 0 && selected_sessions.length > 0){
             ws.send(JSON.stringify(data))
         }
         

@@ -8,13 +8,6 @@ import json
 import os
 import time
 
-class ParamsObj(BaseModel):
-    year: int
-    meetingkey: int
-    driver: str
-    session: list # str
-    data: list # str
-
 router = APIRouter(prefix="/download")
 router.mount("/static", StaticFiles(directory="../static"), name="static")
 
@@ -94,11 +87,12 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
         data = await websocket.receive_text()
+        await websocket.send_text("Starting download")
         data_obj = json.loads(data)
         # do everything and send progress messages
         year = data_obj["year"]
         meeting_key = data_obj["gp"]
-        path = str(year) + '_' + str(meeting_key)
+        path = 'downloaded/' + str(year) + '_' + str(meeting_key)
 
         # Make a folder for this specific GP
         if not os.path.exists(path):
@@ -119,13 +113,14 @@ async def websocket_endpoint(websocket: WebSocket):
         get_params = f"year={year}&meeting_key={meeting_key}"
 
         # Meetinf info
-        meeting_filename = f"Meeting_{path}.json"
+        meeting_filename = f"Meeting_{year}_{meeting_key}.json"
         url_path = f"https://api.openf1.org/v1/meetings?{get_params}"
         filename = path + '/' + meeting_filename
+        print(filename)
         updateFile(url_path, filename)
 
         # Session info
-        session_filename = f"Session_{path}.json"
+        session_filename = f"Session_{year}_{meeting_key}.json"
         url_path = f"https://api.openf1.org/v1/sessions?{get_params}"
         filename = path + '/' + session_filename
         updateFile(url_path, filename)
@@ -149,19 +144,3 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text("Finished!")
     except WebSocketDisconnect:
         print("Connection closed")
-        
-
-@router.post(path="/download-data")
-async def download_data(request: Request, params: Annotated[ParamsObj, Form()]): # <- receive parameters
-    # send status messages of the downloads
-    # loop over all requested drivers
-    # download the data one by one
-    # yield the message
-    context = {"request": request}
-    print("year", str(params.year))
-    print("meetingkey", str(params.meetingkey))
-    print("driver", params.driver)
-    print(params.session)
-    print(params.data)
-    return templates.TemplateResponse("partials/download_partials/download_status.html", context)
-    
