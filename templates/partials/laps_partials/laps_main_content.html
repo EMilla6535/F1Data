@@ -1,18 +1,20 @@
-<div class="container">
+<div class="download-container">
     <h1 class="main-text">Laps Data Analisys</h1>
     <p class="main-text">Load downloaded data to perform some analisys.<br>
         -Write the name of the folder containing the data.<br>
-        -Fill some basic circuit information<br><!-- this may change to be loaded from a file in the future -->
         -Select a driver.<br>
         -Select one or more lap times.<br>
         -Lap times from different sessions can be selected.<br>
         -Times are going to be plotted as points with a linear regression. 
     </p>
     <div>
-        <!-- To improve: detect the downloaded folders -->
         <label for="folder">Write folder name:</label>
-        <input id="folder" type="text">
-        <button hx-get="laps/folder" hx-trigger="click" hx-target="#driver-select">Load folder</button>
+        <select name="folder" hx-get="/laps/folder" hx-target="#driver-select" required>
+            <option value="" disabled selected hidden>Select a folder...</option>
+            {% for folder in folders %}
+            <option value="{{ folder }}">{{ folder }}</option>
+            {% endfor %}
+        </select>
     </div>
     <div id="driver-select"></div>
     <div id="lap-select"></div>

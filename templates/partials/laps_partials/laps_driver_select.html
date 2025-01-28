@@ -1,4 +1,5 @@
 <div class="dropdown">
+    <label for="driver">Select a driver</label>
     <select id="driver" name="driver" hx-get="/laps/laps-select" hx-target="#lap-select" required>
         <option value="" disabled selected hidden>Select a driver</option>
         {% for driver in drivers %}
