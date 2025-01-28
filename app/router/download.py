@@ -64,12 +64,12 @@ async def get_download_drivers(request: Request, meetingkey: int):
 
     return templates.TemplateResponse("partials/download_partials/driver_selector.html", context)
 
-def get_data(driver_number, session, path, base_url, params, session_params, file_type, check_for_updates=True):
+def get_data(driver_number, acronym, session, path, base_url, params, session_params, file_type, check_for_updates=True):
     session_keys = session_params['session_keys']
     session_names = session_params['session_names']
 
     url_path = base_url + params[0] + "=" + str(session_keys[session]) + "&" + params[1] + "=" + str(driver_number)
-    data_filename = f"Driver_{driver_number}/Driver_{driver_number}_{session_names[session]}_{file_type}.json"
+    data_filename = f"Driver_{acronym}_{driver_number}/Driver_{acronym}_{driver_number}_{session_names[session]}_{file_type}.json"
     filename = path + '/' + data_filename
     updateFile(url_path, filename, check_for_updates)
     return f"Driver {driver_number} - Session {session_names[session]} {file_type} updated!"
@@ -99,16 +99,16 @@ async def websocket_endpoint(websocket: WebSocket):
             os.makedirs(path)
 
         # If driver == 0 -> All drivers; else the selected driver
+        drivers_numbers = getDriversList(meeting_key)
         if data_obj["driver"] == "0":
-            drivers_numbers = getDriversList(meeting_key)
-            drivers_numbers = [int(dn) for dn in drivers_numbers.values()]
+            drivers_data = {key: int(value) for key, value in drivers_numbers.items()}
         else:
-            drivers_numbers = [int(data_obj["driver"])]
+            drivers_data = {key: int(value) for key, value in drivers_numbers.items() if int(value) == int(data_obj["driver"])}
         
         # Make a folder for each driver in drivers_numbers
-        for dn in drivers_numbers:
-            if not os.path.exists(path + '/Driver_' + str(dn)):
-                os.makedirs(path + '/Driver_' + str(dn))
+        for key, value in drivers_data.items():
+            if not os.path.exists(path + '/Driver_' + key + '_' + str(value)):
+                os.makedirs(path + '/Driver_' + key + '_' + str(value))
         
         get_params = f"year={year}&meeting_key={meeting_key}"
 
@@ -136,10 +136,11 @@ async def websocket_endpoint(websocket: WebSocket):
             base_url = f"https://api.openf1.org/v1/{field}?"
             params = ['session_key', 'driver_number']
             file_type = field
-            for dn in drivers_numbers:
+            #for dn in drivers_numbers:
+            for key, value in drivers_data.items():
                 for j in session_indexes:
                     # Get session names from URL
-                    await websocket.send_text(get_data(dn, j, path, base_url, params, session_params, file_type, False))
+                    await websocket.send_text(get_data(value, key, j, path, base_url, params, session_params, file_type, False))
         await websocket.send_text("Finished!")
     except WebSocketDisconnect:
         print("Connection closed")
