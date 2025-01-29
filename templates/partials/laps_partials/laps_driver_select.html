@@ -1,9 +1,9 @@
 <div class="dropdown">
     <label for="driver">Select a driver</label>
-    <select id="driver" name="driver" hx-get="/laps/laps-select" hx-target="#lap-select" required>
+    <select id="driver" name="driver" hx-get="/laps/laps-select" hx-target="#lap-select" hx-include="[name='folder']" required>
         <option value="" disabled selected hidden>Select a driver</option>
-        {% for driver in drivers %}
-        <option value="{{ driver }}">{{ driver }}</option>
+        {% for key, value in drivers.items() %}
+        <option value="{{ value }}">{{ key }}</option>
         {% endfor %}
     </select>
 </div>

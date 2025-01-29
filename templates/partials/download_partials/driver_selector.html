@@ -32,9 +32,6 @@
         message.appendChild(content)
         messages.appendChild(message)
     };
-    ws.onclose = function(event){
-        console.log("connection closed")
-    }
     function sendData(event){
         var year_select = document.getElementById('year')
         var gp_select = document.getElementById('grand-prix')

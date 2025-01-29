@@ -143,5 +143,5 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_text(get_data(value, key, j, path, base_url, params, session_params, file_type, False))
         await websocket.send_text("Finished!")
     except WebSocketDisconnect:
-        await websocket.close()
+        #await websocket.close()
         print("Connection closed")

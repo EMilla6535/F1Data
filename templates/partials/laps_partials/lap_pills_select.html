@@ -1,0 +1,46 @@
+<form id="laps-pills">
+    {% for k, v in stints.items() %}
+        <h3>{{ k }}</h3>
+        {% for item in v %}
+            <label>{{ item.compound }}</label>
+            <div>
+                {% for lap in item.lap_times %}
+                <button class="pill-normal">{{ lap }}</button>
+                <input type="hidden" value="{{ lap }}">
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endfor %}
+    <!-- Send data to plot if any -->
+    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']">Plot data</button>
+</form>
+<script>
+    function getTarget(e){
+        return e.target;
+    }
+    function changeColor(e){
+        var target = getTarget(e);
+        // toggle class name
+        // get actual class name of target
+        // change to the other
+        actual_class = target.className;
+        
+        if (actual_class == "pill-normal" || actual_class == "pill-selected"){
+            hidden_el = target.nextElementSibling
+            // add a hidden form input with value
+            if (actual_class == 'pill-normal'){
+                target.className = 'pill-selected';
+                hidden_el.setAttribute("name", "lap_times")
+            }
+            else{
+                target.className = 'pill-normal';
+                hidden_el.removeAttribute("name")
+            }
+            e.preventDefault();
+        }
+    }
+    var pills_parent = document.getElementById("laps-pills")
+    pills_parent.addEventListener('click', function(e){
+        changeColor(e);
+    }, false);
+</script>
