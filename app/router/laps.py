@@ -5,6 +5,11 @@ from typing import Annotated
 from app.utils.utils import getDriversList, loadDataFromDisk
 from app.utils.driver_utils import Driver
 import os
+import numpy as np
+
+import matplotlib.pyplot as plt
+import io
+import base64
 
 router = APIRouter(prefix="/laps")
 router.mount("/static", StaticFiles(directory="../static"), name="static")
@@ -62,7 +67,58 @@ async def get_laps_times(request: Request, driver: str, folder: str):
     context["stints"] = laps_by_stint
     return templates.TemplateResponse("partials/laps_partials/lap_pills_select.html", context)
 
+def getRegressionCoef(_x, _y):
+    n = len(_x)
+    sum_x = sum(_x)
+    sum_y = sum(_y)
+    sum_x_2 = sum([v**2 for v in _x])
+    sum_xy = sum([v*w for v, w in zip(_x, _y)])
+
+    m = (sum_xy - ((sum_y * sum_x) / n)) / (sum_x_2 - ((sum_x * sum_x) / n))
+    b = (sum_y - (m * sum_x)) / n
+    return m, b
+
 @router.post(path="/plot-data")
 async def plot_data(request: Request, lap_times: Annotated[list, Form()]):
-    # 
-    print(lap_times)
+    #print(lap_times)
+    # Generate a simple plot
+    lap_times = [float(_) for _ in lap_times]
+    dark_color = '#153132'
+    light_color = '#FFFFFF'
+
+    soft_color = '#F01D25'
+    medium_color = '#FFD401'
+    hard_color = '#FFFFFF'
+
+    fig, ax = plt.subplots()
+    fig.set_facecolor(dark_color)
+    ax.set_facecolor(dark_color)
+
+    x = [_ + 1 for _ in range(len(lap_times))]
+
+    m, b = getRegressionCoef(x, lap_times)
+    y_rect = [m*_ + b for _ in x]
+
+    ax.scatter(x, lap_times, color='red')
+    ax.plot(x, y_rect, color='blue')
+
+    y_pos = np.linspace(np.min(lap_times) - 5.0, np.max(lap_times) + 5.0, 5)
+    y_labels = ['{:.4}'.format(label) for label in y_pos]
+    ax.set_yticks(y_pos, labels=y_labels, color=light_color)
+    ax.set_xticks([])
+    #plt.figure()
+    #plt.plot([1, 2, 3, 4], [10, 20, 25, 30], marker="o")
+    #plt.title("Sample Plot")
+    #plt.xlabel("X-axis")
+    #plt.ylabel("Y-axis")
+
+    # Save the plot to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png")
+    buf.seek(0)
+    img_str = base64.b64encode(buf.read()).decode("utf-8")
+    buf.close()
+
+    context = {"request": request}
+    context["img_str"] = img_str
+    return templates.TemplateResponse("partials/laps_partials/laps_plotted_data.html", context)

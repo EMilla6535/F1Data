@@ -12,7 +12,7 @@
         {% endfor %}
     {% endfor %}
     <!-- Send data to plot if any -->
-    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']">Plot data</button>
+    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">Plot data</button>
 </form>
 <script>
     function getTarget(e){
