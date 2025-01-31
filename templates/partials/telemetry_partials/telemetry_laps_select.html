@@ -1,0 +1,16 @@
+<form id="laps-pills">
+    {% for session, stint in stints.items() %}
+        <h3>{{ session }}</h3>
+        {% for compound, laps in stint.items() %}
+            <label>{{ compound }}</label>
+            <div>
+                {% for index, lap in laps.items() %}
+                <button class="pill-normal">{{ lap }}</button>
+                <input type="hidden" value="{{ index }}">
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endfor %}
+    <!-- Send data to plot if any -->
+    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">Plot data</button>
+</form>

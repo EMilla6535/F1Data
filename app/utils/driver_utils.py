@@ -195,7 +195,7 @@ class Driver:
     
     
 
-class DriverLocation(Driver):
+class DriverLocTel(Driver):
     def __init__(self, driver_fname, filepath, start_point, start_angle, track_len, race_format='standard'):
         self.dfn = driver_fname
         self.filepath = filepath

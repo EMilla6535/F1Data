@@ -1,18 +1,20 @@
 <form id="laps-pills">
-    {% for k, v in stints.items() %}
-        <h3>{{ k }}</h3>
-        {% for item in v %}
-            <label>{{ item.compound }}</label>
+    {% for session, stint in stints.items() %}
+        <h3>{{ session }}</h3>
+        {% for compound, laps in stint.items() %}
+            <label>{{ compound }}</label>
             <div>
-                {% for lap in item.lap_times %}
+                {% for index, lap in laps.items() %}
                 <button class="pill-normal">{{ lap }}</button>
                 <input type="hidden" value="{{ lap }}">
+                <input type="hidden" value="{{ index }}">
                 {% endfor %}
             </div>
         {% endfor %}
     {% endfor %}
     <!-- Send data to plot if any -->
-    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">Plot data</button>
+    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">Plot lap times</button>
+    <button class="submit-button" hx-post="/laps/telemetry" hx-trigger="click" hx-include="[name='lap_index']" hx-target="#plot-area">Plot telemetry</button>
 </form>
 <script>
     function getTarget(e){
@@ -26,15 +28,18 @@
         actual_class = target.className;
         
         if (actual_class == "pill-normal" || actual_class == "pill-selected"){
-            hidden_el = target.nextElementSibling
+            hidden_lap = target.nextElementSibling
+            hidden_ind = hidden_lap.nextElementSibling
             // add a hidden form input with value
             if (actual_class == 'pill-normal'){
                 target.className = 'pill-selected';
-                hidden_el.setAttribute("name", "lap_times")
+                hidden_lap.setAttribute("name", "lap_times")
+                hidden_ind.setAttribute("name", "lap_index")
             }
             else{
                 target.className = 'pill-normal';
-                hidden_el.removeAttribute("name")
+                hidden_lap.removeAttribute("name")
+                hidden_ind.removeAttribute("name")
             }
             e.preventDefault();
         }

@@ -1,0 +1,18 @@
+<form hx-post="/telemetry/laps-select" hx-target="#laps-select" hx-include="[name='folder']">
+    <label for="angle">Angle between main straight and horizontal.</label>
+    <input name="angle" type="text">
+    <label for="distance">Total track distance in km.</label>
+    <input name="distance" type="text">
+    <label for="x_coord">X coordinate of the starting point.</label>
+    <input name="x_coord" type="text">
+    <label for="y_coord">Y coordinate of the starting point.</label>
+    <input name="y_coord" type="text">
+    <label for="driver">Select a driver:</label>
+    <select id="driver" name="driver" required>
+        <option value="" disabled selected hidden>Select a driver...</option>
+        {% for key, value in drivers.items() %}
+        <option value="{{ value }}">{{ key }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Get laps">
+</form>

@@ -1,16 +1,26 @@
-{% extends "././home.html" %}
-{% block content %}
-<h1 class="main-text">Telemetry Data Analisys</h1>
-<p class="main-text">Plot lap telemetry.<br>
-    I still didn't defined the workflow.<br>
-    But it may be something like this:<br>
-    -Write the name of the folder with the data.<br>
-    -Introduce basic circuit information.<br>
-    -Select a driver.<br>
-    -Select the lap/s of interest.<br>
-    There will be 3 buttons.
-    -Plot the current saved data.<br>
-    -Save driver and laps.(to compare later)<br>
-    -Clear saved data.<br>
-</p>
-{% endblock %}
+<div>
+    <h1>Telemetry Data Analisys</h1>
+    <p>Plot lap telemetry.</p>
+    <p>I still didn't defined the workflow.</p>
+    <p>But it may be something like this:</p>
+    <p>-Select the folder with the data.</p>
+    <p>-Introduce basic circuit information.</p>
+    <p>-Select a driver.</p>
+    <p>-Select the lap/s of interest.</p>
+    <p>There will be 3 buttons.</p>
+    <p>-Plot the current saved data.</p>
+    <p>-Save driver and laps.(to compare later)</p>
+    <p>-Clear saved data.</p>
+    <div>
+        <label for="folder">Select folder with data.</label>
+        <select name="folder" hx-get="/telemetry/folder" hx-target="#basic-info-w-driver" required>
+            <option value="" disabled selected hidden>Select a folder...</option>
+            {% for folder in folders %}
+            <option value="{{ folder }}">{{ folder }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div id="basic-info-w-driver"></div>
+    <div id="laps-select"></div>
+</div>
+<div id="plot-area"></div>

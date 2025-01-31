@@ -63,8 +63,22 @@ async def get_laps_times(request: Request, driver: str, folder: str):
     laps_by_stint = single_driver.getLapsByStints()
     # send lap_times as 'pills' and a submit button to plot them
 
+    result = {}
+    next_len = 0
+    prev_len = 0
+    for session, stints in laps_by_stint.items():
+        temp_session = {}
+        for i, item in enumerate(stints):
+            next_len = len(item['lap_times'])
+            temp = {}
+            for j, lap in enumerate(item['lap_times']):
+                temp[prev_len + j] = lap
+            prev_len += next_len
+            temp_session[item['compound'] + ' ' + str(i + 1)] = temp
+        result[session] = temp_session
+
     context = {"request": request}
-    context["stints"] = laps_by_stint
+    context["stints"] = result
     return templates.TemplateResponse("partials/laps_partials/lap_pills_select.html", context)
 
 def getRegressionCoef(_x, _y):
@@ -106,11 +120,6 @@ async def plot_data(request: Request, lap_times: Annotated[list, Form()]):
     y_labels = ['{:.4}'.format(label) for label in y_pos]
     ax.set_yticks(y_pos, labels=y_labels, color=light_color)
     ax.set_xticks([])
-    #plt.figure()
-    #plt.plot([1, 2, 3, 4], [10, 20, 25, 30], marker="o")
-    #plt.title("Sample Plot")
-    #plt.xlabel("X-axis")
-    #plt.ylabel("Y-axis")
 
     # Save the plot to a bytes buffer
     buf = io.BytesIO()
