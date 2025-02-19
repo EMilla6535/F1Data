@@ -2,14 +2,27 @@ from app import templates, sections
 from fastapi import APIRouter, Request, Form
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
+from pydantic import BaseModel
 from app.utils.utils import getDriversList, loadDataFromDisk
-from app.utils.driver_utils import Driver
+from app.utils.driver_utils import Driver, DriverLocTel, getNormalizedTelemetry
 import os
 import numpy as np
 
 import matplotlib.pyplot as plt
 import io
 import base64
+
+dark_color = '#153132'
+light_color = '#FFFFFF'
+
+soft_color = '#F01D25'
+medium_color = '#FFD401'
+hard_color = '#FFFFFF'
+
+class TelemetryData(BaseModel):
+    folder: str
+    driver: str
+    lap_index: list
 
 router = APIRouter(prefix="/laps")
 router.mount("/static", StaticFiles(directory="../static"), name="static")
@@ -64,15 +77,15 @@ async def get_laps_times(request: Request, driver: str, folder: str):
     # send lap_times as 'pills' and a submit button to plot them
 
     result = {}
-    next_len = 0
-    prev_len = 0
     for session, stints in laps_by_stint.items():
         temp_session = {}
+        next_len = 0
+        prev_len = 0
         for i, item in enumerate(stints):
             next_len = len(item['lap_times'])
             temp = {}
             for j, lap in enumerate(item['lap_times']):
-                temp[prev_len + j] = lap
+                temp[session + '-' + str(prev_len + j)] = lap
             prev_len += next_len
             temp_session[item['compound'] + ' ' + str(i + 1)] = temp
         result[session] = temp_session
@@ -97,12 +110,6 @@ async def plot_data(request: Request, lap_times: Annotated[list, Form()]):
     #print(lap_times)
     # Generate a simple plot
     lap_times = [float(_) for _ in lap_times]
-    dark_color = '#153132'
-    light_color = '#FFFFFF'
-
-    soft_color = '#F01D25'
-    medium_color = '#FFD401'
-    hard_color = '#FFFFFF'
 
     fig, ax = plt.subplots()
     fig.set_facecolor(dark_color)
@@ -131,3 +138,81 @@ async def plot_data(request: Request, lap_times: Annotated[list, Form()]):
     context = {"request": request}
     context["img_str"] = img_str
     return templates.TemplateResponse("partials/laps_partials/laps_plotted_data.html", context)
+
+@router.post(path="/telemetry")
+async def telemetry(request: Request, data: Annotated[TelemetryData, Form()]):
+    session_filename = f"Session_{data.folder}.json"
+    session_data = loadDataFromDisk(f'./downloaded/{data.folder}/{session_filename}')
+    session_names = [item['session_name'] for item in session_data]
+
+    lap_result = []
+    for item in data.lap_index:
+        prefix, index = item.split('-')
+        lap_result.append({'session': prefix, 'lap': [int(index)]})
+
+    race_format = 'standard'
+    if 'Sprint Qualifying' in session_names or 'Sprint' in session_names:
+        race_format = 'sprint'
+    
+    circuit_data = {'start_point': [2380, -215], 'start_angle': 50, 'track_len': 62010}
+    single_driver = DriverLocTel(data.driver,
+                                 f'./downloaded/{data.folder}',
+                                 circuit_data['start_point'],
+                                 circuit_data['start_angle'],
+                                 circuit_data['track_len'],
+                                 race_format)
+    
+    norm_data = []
+    for item in lap_result:
+        norm_data.append(getNormalizedTelemetry(single_driver.getCarLocation(item['session'], item['lap'])[0],
+                                                single_driver.getCarTelemetry(item['session'], item['lap'])[0],
+                                                circuit_data['start_point'][0], 
+                                                circuit_data['start_point'][1],
+                                                circuit_data['track_len']))
+    
+    context = {"request": request}
+    
+    data_names = ["speed", "rpm", "throttle", "brake", "n_gear", "drs"]
+    fig, ax = plt.subplots(6)
+    fig.set_facecolor(dark_color)
+    fig.set_size_inches(13, 9)
+
+    cmap = plt.get_cmap('plasma')
+    lap_colors = cmap(np.linspace(0.2, 0.8, len(lap_result)))
+
+    for j in range(len(lap_result)):
+        x = norm_data[j]['x_tel']
+        y = norm_data[j]['y_tel']
+        
+        for i in range(6):
+            ax[i].set_facecolor(dark_color)
+            ax[i].spines['left'].set_color(light_color)
+            ax[i].spines['bottom'].set_color(light_color)
+            ax[i].spines['top'].set_visible(False)
+            ax[i].spines['right'].set_visible(False)
+        
+            selected_y = [item[data_names[i]] for item in y]
+            ax[i].set_ylabel(data_names[i], color=light_color)
+            ax[i].tick_params(colors=light_color, which='both')
+            if i != 5:
+                ax[i].set_xticks([])
+            ax[i].plot(x, selected_y, color=lap_colors[j])
+    
+    # Save the plot to a bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png")
+    buf.seek(0)
+    img_str = base64.b64encode(buf.read()).decode("utf-8")
+    buf.close()
+
+    context["img_str"] = img_str
+    return templates.TemplateResponse("partials/laps_partials/laps_plotted_data.html", context)
+
+# TODO 
+# 1: save laps in cache to compare them later. Save driver, lap index, session, etc.
+# Reset if GP change.
+# 2: compare laps in cache
+
+#@router.post(path="/save-laps")
+#async def save_laps(request: Request, data: Annotated[TelemetryData, Form()]):
+#

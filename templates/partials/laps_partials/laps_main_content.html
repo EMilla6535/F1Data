@@ -7,7 +7,7 @@
         -Lap times from different sessions can be selected.<br>
         -Times are going to be plotted as points with a linear regression. 
     </p>
-    <div>
+    <form>
         <label for="folder">Write folder name:</label>
         <select name="folder" hx-get="/laps/folder" hx-target="#driver-select" required>
             <option value="" disabled selected hidden>Select a folder...</option>
@@ -15,9 +15,9 @@
             <option value="{{ folder }}">{{ folder }}</option>
             {% endfor %}
         </select>
-    </div>
-    <div id="driver-select"></div>
-    <div id="lap-select"></div>
+        <div id="driver-select"></div>
+        <div id="lap-select"></div>
+    </form>
 </div>
 <div id="plot-area"></div>
 

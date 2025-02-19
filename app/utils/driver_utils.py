@@ -221,7 +221,7 @@ class DriverLocTel(Driver):
                           for item in temp_l if item['lap_duration'] is not None]
             result = []
             for i in laps:
-                if i > 0 and i < len(temp_laps):
+                if i >= 0 and i < len(temp_laps):
                     result.append(temp_laps[i])
             # load car telemetry
             car_tel = self.openDataFile('car_data', session)
@@ -232,6 +232,33 @@ class DriverLocTel(Driver):
         except FileNotFoundError:
             print("File not found at getCarTelemetry()")
             tel_data = []
+        
+        return tel_data
+
+    def getCarTelemetryByLap(self, laps):
+        # collect lap information based in laps indexes
+        next_len = 0
+        prev_len = 0
+        tel_data = []
+        for session in self.sessions:
+            try:
+                temp_l = self.openDataFile('laps', session)
+                temp_laps = [{'lap_duration': item['lap_duration'], 'date_start': item['date_start']}
+                              for item in temp_l if item['lap_duration'] is not None]
+                next_len = len(temp_laps)
+                result = []
+                for i in laps:
+                    if i >= prev_len and i < next_len:
+                        result.append(temp_laps[i])
+                
+                car_tel = self.openDataFile('car_data', session)
+                if len(result) > 0:
+                    for i in range(len(result)):
+                        tel_data.append([item for item in car_tel if checkTimeDelta(result[i]['date_start'], item['date'], result[i]['lap_duration'])])
+                prev_len = next_len
+
+            except FileNotFoundError:
+                print("File not found at getCarTelemetryByLap()")
         
         return tel_data
     
@@ -246,7 +273,7 @@ class DriverLocTel(Driver):
                           for item in temp_l if item['lap_duration'] is not None]
             result = []
             for i in laps:
-                if i > 0 and i < len(temp_laps):
+                if i >= 0 and i < len(temp_laps):
                     result.append(temp_laps[i])
             # load car telemetry
             car_loc = self.openDataFile('location', session)

@@ -1,4 +1,4 @@
-<form id="laps-pills">
+<div id="laps-pills">
     {% for session, stint in stints.items() %}
         <h3>{{ session }}</h3>
         {% for compound, laps in stint.items() %}
@@ -13,9 +13,13 @@
         {% endfor %}
     {% endfor %}
     <!-- Send data to plot if any -->
-    <button class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">Plot lap times</button>
-    <button class="submit-button" hx-post="/laps/telemetry" hx-trigger="click" hx-include="[name='lap_index']" hx-target="#plot-area">Plot telemetry</button>
-</form>
+</div>
+<input type="submit" value="Plot lap times" class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">
+<input type="submit" value="Plot telemetry" class="submit-button" hx-post="/laps/telemetry" hx-trigger="click" hx-include="[name='lap_index']" hx-target="#plot-area">
+<input type="submit" value="Save laps" class="submit-button" id="save-laps">
+<input type="submit" value="Compare laps" class="submit-button" id="compare-laps">
+<input type="submit" value="Clear saved laps" class="submit-button" id="clear-laps">
+<script src="../static/js/laps_db.js"></script>
 <script>
     function getTarget(e){
         return e.target;
