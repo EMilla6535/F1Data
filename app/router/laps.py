@@ -1,5 +1,5 @@
 from app import templates, sections
-from fastapi import APIRouter, Request, Form
+from fastapi import APIRouter, Request, Form, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
 from pydantic import BaseModel
@@ -7,6 +7,7 @@ from app.utils.utils import getDriversList, loadDataFromDisk
 from app.utils.driver_utils import Driver, DriverLocTel, getNormalizedTelemetry
 import os
 import numpy as np
+import json
 
 import matplotlib.pyplot as plt
 import io
@@ -19,7 +20,13 @@ soft_color = '#F01D25'
 medium_color = '#FFD401'
 hard_color = '#FFFFFF'
 
-class TelemetryData(BaseModel):
+class SimpleDriver(BaseModel):
+    driver: str
+    lap_index: str
+
+# Inherit from SimpleDriver and BaseModel
+# and add folder
+class TelemetryData(SimpleDriver, BaseModel):
     folder: str
     driver: str
     lap_index: list
@@ -213,6 +220,110 @@ async def telemetry(request: Request, data: Annotated[TelemetryData, Form()]):
 # Reset if GP change.
 # 2: compare laps in cache
 
-#@router.post(path="/save-laps")
-#async def save_laps(request: Request, data: Annotated[TelemetryData, Form()]):
-#
+@router.websocket(path="/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    -data_obj structure
+    folder: str
+    data: list[driver_struct]
+    -driver_struct
+        driver: str
+        lap_index: list[int]
+    """
+    await websocket.accept()
+    try:
+        data = await websocket.receive_text()
+        data_obj = json.loads(data)
+        folder = data_obj['folder']
+        obj_data = data_obj['data']
+
+        # Get session data
+        session_filename = f"Session_{folder}.json"
+        session_data = loadDataFromDisk(f'./downloaded/{folder}/{session_filename}')
+        session_names = [item['session_name'] for item in session_data]
+        race_format = 'standard'
+        if 'Sprint Qualifying' in session_names or 'Sprint' in session_names:
+            race_format = 'sprint'
+
+        # Circuit information
+        circuit_data = {'start_point': [2380, -215], 'start_angle': 50, 'track_len': 62010}
+
+        # For each driver in array
+        # get lap_result
+        # create a single_driver object
+        # append norm_data of lap_results
+
+        total_laps = 0
+        norm_data = [] # list[{'driver': str, 'data_details': [{'lap': str, 'data': normalizedTelemetry}, ...]}, ...]
+        for driver in obj_data:
+            norm_data.append({'driver': driver['driver'], 'data_details': []})
+            lap_result = []
+            for item in driver['lap_index']:
+                prefix, index = item.split('-')
+                lap_result.append({'session': prefix, 'lap': [int(index)]})
+                total_laps += 1
+
+            single_driver = DriverLocTel(driver['driver'], 
+                                         f'./downloaded/{folder}',
+                                         circuit_data['start_point'],
+                                         circuit_data['start_angle'],
+                                         circuit_data['track_len'],
+                                         race_format)
+            # Add dict to norm_data with driver and lap info for labels
+            temp_norm_data = []
+            for item in lap_result:
+                temp_norm_data.append(getNormalizedTelemetry(single_driver.getCarLocation(item['session'], item['lap'])[0],
+                                                             single_driver.getCarTelemetry(item['session'], item['lap'])[0], 
+                                                             circuit_data['start_point'][0],
+                                                             circuit_data['start_point'][1],
+                                                             circuit_data['track_len']))
+                norm_data[-1]['data_details'].append({'lap': item['session'] + ' ' + str(item['lap'][0]), 'data': temp_norm_data})
+
+        # Plot telemetry
+        data_names = ["speed", "rpm", "throttle", "brake", "n_gear", "drs"]
+        fig, ax = plt.subplots(6)
+        fig.set_facecolor(dark_color)
+        fig.set_size_inches(13, 9) # check if this is necessary
+
+        cmap = plt.get_cmap('plasma')
+        lap_colors = cmap(np.linspace(0.2, 0.8, total_laps))
+        color_index = 0
+        legend_data = []
+
+        for driver_data in norm_data:
+            data = driver_data['data_details']
+            for j in range(len(data)):
+                legend_data.append(driver_data['driver'] + ' ' + data[j]['lap'])
+                x = data[j]['data'][0]['x_tel']
+                y = data[j]['data'][0]['y_tel']
+
+                for i in range(6):
+                    ax[i].set_facecolor(dark_color)
+                    ax[i].spines['left'].set_color(light_color)
+                    ax[i].spines['bottom'].set_color(light_color)
+                    ax[i].spines['top'].set_visible(False)
+                    ax[i].spines['right'].set_visible(False)
+                
+                    selected_y = [item[data_names[i]] for item in y]
+                    ax[i].set_ylabel(data_names[i], color=light_color)
+                    ax[i].tick_params(colors=light_color, which='both')
+                    if i != 5:
+                        ax[i].set_xticks([])
+                    ax[i].plot(x, selected_y, color=lap_colors[color_index])
+            
+            color_index += 1
+
+        fig.legend(labels=legend_data, loc='upper center', ncols=len(legend_data))
+        
+        # Save the plot to a bytes buffer
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        img_str = base64.b64encode(buf.read()).decode("utf-8")
+        buf.close()
+
+        await websocket.send_text(img_str)
+
+        
+    except WebSocketDisconnect:
+        print("Connection closed")
