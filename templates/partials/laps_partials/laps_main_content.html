@@ -1,24 +1,67 @@
-<div class="download-container">
-    <h1 class="main-text">Laps Data Analisys</h1>
-    <p class="main-text">Load downloaded data to perform some analisys.<br>
-        -Write the name of the folder containing the data.<br>
-        -Select a driver.<br>
-        -Select one or more lap times.<br>
-        -Lap times from different sessions can be selected.<br>
-        -Times are going to be plotted as points with a linear regression. 
-    </p>
+<!--div class="flex-shrink-0 p-3" style="width: 280px;">
+    <h5 class="fw-normal text-muted mb-3">Laps Data Analisys</h5>
+    <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed mb-2" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="true">
+        Description
+    </button>
+    <div id="description-collapse" class="collapse mb-2">
+        <small>Load downloaded data to perform some analisys.<br>
+            -Select the folder containing the data.<br>
+            -Select a driver.<br>
+            -Select one or more lap times.<br>
+            -Lap times from different sessions can be selected.<br>
+            -Times are going to be plotted as points with a linear regression. 
+        </small>
+    </div>
+    
     <form>
-        <label for="folder">Write folder name:</label>
-        <select name="folder" hx-get="/laps/folder" hx-target="#driver-select" required>
-            <option value="" disabled selected hidden>Select a folder...</option>
-            {% for folder in folders %}
-            <option value="{{ folder }}">{{ folder }}</option>
-            {% endfor %}
-        </select>
+        <h6 class="btn btn-toggle d-inline-flex align-items-center rounded border-0" style="cursor: auto;">Folder name</h6>
+        <div>
+            <select class="form-select" name="folder" hx-get="/laps/folder" hx-target="#driver-select" required>
+                <option value="" disabled selected hidden>Select a folder...</option>
+                {% for folder in folders %}
+                <option value="{{ folder }}">{{ folder }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
         <div id="driver-select"></div>
         <div id="lap-select"></div>
     </form>
     <script src="../static/js/laps_main_script.js"></script>
 </div>
-<div id="plot-area"></div>
+<div id="plot-area" class="col-md-8"></div-->
 
+
+<form class="row p-0">
+    <div class="col-md-4"><!-- class="flex-shrink-0 p-3" style="width: 280px;" -->
+        <h5 class="fw-normal text-muted mb-3">Laps Data Analisys</h5>
+        <!--button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed mb-2" data-bs-toggle="collapse" data-bs-target="#description-collapse" aria-expanded="true">
+            Description
+        </button>
+        <div id="description-collapse" class="collapse mb-2">
+            <small>Load downloaded data to perform some analisys.<br>
+                -Select the folder containing the data.<br>
+                -Select a driver.<br>
+                -Select one or more lap times.<br>
+                -Lap times from different sessions can be selected.<br>
+                -Times are going to be plotted as points with a linear regression. 
+            </small>
+        </div-->
+        <h6 class="btn btn-toggle d-inline-flex align-items-center rounded border-0" style="cursor: auto;">Folder name</h6>
+        <div>
+            <select class="form-select" name="folder" hx-get="/laps/folder" hx-target="#driver-select" required>
+                <option value="" disabled selected hidden>Select a folder...</option>
+                {% for folder, official_name in folders.items() %}
+                <option value="{{ folder }}">{{ official_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="driver-select"></div>
+    </div>
+
+    <div class="col-md-8">
+        <div id="lap-select"></div>
+        <div id="plot-area" class="col"></div>
+    </div>
+</form>
+<script src="../static/js/laps_main_script.js"></script>

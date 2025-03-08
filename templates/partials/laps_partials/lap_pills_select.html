@@ -1,24 +1,33 @@
-<div id="laps-pills">
+<div id="laps-pills" class="my-3 px-2"><!-- class="my-3" -->
     {% for session, stint in stints.items() %}
-        <h3>{{ session }}</h3>
+    <div class="accordion-item mb-3">
+        <h6 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target='#collapse{{ session|replace(" ", "") }}' aria-expanded="false" aria-controls='collapse{{ session|replace(" ", "") }}'>
+                <u>{{ session }}</u>
+            </button>
+        </h6>
+        <div id='collapse{{ session|replace(" ", "") }}' class="accordion-collapse p-2 collapse" data-bs-parent="#laps-pills">
         {% for compound, laps in stint.items() %}
-            <label>{{ compound }}</label>
+            <small>{{ compound }}</small>
             <div>
                 {% for index, lap in laps.items() %}
-                <button class="pill-normal">{{ lap }}</button>
+                <!--button class="pill-normal">{{ lap }}</button-->
+                <button class="btn btn-outline-info btn-sm p-0" style="width: 70px;">{{ lap }}</button>
                 <input type="hidden" value="{{ lap }}">
                 <input type="hidden" value="{{ index }}">
                 {% endfor %}
             </div>
         {% endfor %}
+        </div>
+    </div>
     {% endfor %}
     <!-- Send data to plot if any -->
 </div>
-<input type="submit" value="Plot lap times" class="submit-button" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">
-<input type="submit" value="Plot telemetry" class="submit-button" hx-post="/laps/telemetry" hx-trigger="click" hx-include="[name='lap_index']" hx-target="#plot-area">
-<input type="submit" value="Save laps" class="submit-button" id="save-laps">
-<input type="submit" value="Compare laps" class="submit-button" id="compare-laps">
-<input type="submit" value="Clear saved laps" class="submit-button" id="clear-laps">
+<input type="submit" value="Plot lap times" class="btn btn-primary mb-2" style="width: 140px;" hx-post="/laps/plot-data" hx-trigger="click" hx-include="[name='lap_times']" hx-target="#plot-area">
+<input type="submit" value="Plot telemetry" class="btn btn-primary mb-2" style="width: 140px;" hx-post="/laps/telemetry" hx-trigger="click" hx-include="[name='lap_index']" hx-target="#plot-area">
+<input type="submit" value="Save laps" class="btn btn-primary mb-2" style="width: 140px;" id="save-laps">
+<input type="submit" value="Compare laps" class="btn btn-primary mb-2" style="width: 140px;" id="compare-laps">
+<input type="submit" value="Clear saved laps" class="btn btn-primary mb-2" style="width: 140px;" id="clear-laps">
 <script src="../static/js/laps_db.js"></script>
 <script>
     function getTarget(e){
@@ -30,20 +39,22 @@
         // get actual class name of target
         // change to the other
         actual_class = target.className;
+        const unselected_class = "btn btn-outline-info btn-sm p-0";
+        const selected_class = "btn btn-info btn-sm p-0";
         
-        if (actual_class == "pill-normal" || actual_class == "pill-selected"){
+        if (actual_class == unselected_class || actual_class == selected_class){
             hidden_lap = target.nextElementSibling
             hidden_ind = hidden_lap.nextElementSibling
             // add a hidden form input with value
-            if (actual_class == 'pill-normal'){
-                target.className = 'pill-selected';
-                hidden_lap.setAttribute("name", "lap_times")
-                hidden_ind.setAttribute("name", "lap_index")
+            if (actual_class == unselected_class){
+                target.className = selected_class;
+                hidden_lap.setAttribute("name", "lap_times");
+                hidden_ind.setAttribute("name", "lap_index");
             }
             else{
-                target.className = 'pill-normal';
-                hidden_lap.removeAttribute("name")
-                hidden_ind.removeAttribute("name")
+                target.className = unselected_class;
+                hidden_lap.removeAttribute("name");
+                hidden_ind.removeAttribute("name");
             }
             e.preventDefault();
         }

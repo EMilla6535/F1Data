@@ -1,8 +1,8 @@
 <!-- Maybe change this for a form -->
  <form action="" onsubmit="sendData(event)">
-    <div class="dropdown">
-        <label for="drivers">Select one or more drivers.</label>
-        <select id="drivers" name="driver" required><!-- Multiple or add a tag to select ALL -->
+    <div>
+        <label class="form-label" for="drivers">Select one or more drivers.</label>
+        <select class="form-select" id="drivers" name="driver" required><!-- Multiple or add a tag to select ALL -->
             <option value="0">ALL</option>
             <!-- Get a list of all available drivers, plus maybe an extra tag for ALL -->
             {% for key, value in drivers.items() %}
@@ -10,44 +10,101 @@
             {% endfor %}
         </select>
     </div>
-    <div class="checkbox-group">
-        {% for key, value in session_info.items() %}
-        <input type="checkbox" name="session" value="{{ value }}">{{ key }}
-        {% endfor %}
-        <input type="checkbox" name="data" value="laps">laps
-        <input type="checkbox" name="data" value="drivers">drivers
-        <input type="checkbox" name="data" value="car_data">car_data
-        <input type="checkbox" name="data" value="location">location
-        <input type="checkbox" name="data" value="stints">stints
+    <div class="row my-3"> <!-- class="checkbox-group" -->
+        <div class="col">
+            {% for key, value in session_info.items() %}
+            <div class="row">
+                <input class="form-check-input mx-2" type="checkbox" name="session" value="{{ value }}">{{ key }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col">
+            <div class="row">
+                <input type="checkbox" name="data" value="laps" class="form-check-input mx-2">Laps
+            </div>
+            <div class="row">
+                <input type="checkbox" name="data" value="drivers" class="form-check-input mx-2">Drivers
+            </div>
+            <div class="row">
+                <input type="checkbox" name="data" value="car_data" class="form-check-input mx-2">Car data
+            </div>
+            <div class="row">
+                <input type="checkbox" name="data" value="location" class="form-check-input mx-2">Location
+            </div>
+            <div class="row">
+                <input type="checkbox" name="data" value="stints" class="form-check-input mx-2">Stints
+            </div>
+        </div>
     </div>
     <!-- Include GP meeting key -->
-    <button class="submit-button" >Download data</button>
+    <button class="btn btn-outline-primary my-2" >Download data</button>
 </form>
 <script>
-    var ws = new WebSocket("ws://localhost:8000/download/ws");
-    ws.onmessage = function(event){
-        var messages = document.getElementById('download-status')
-        var message = document.createElement('p')
-        var content = document.createTextNode(event.data)
-        message.appendChild(content)
-        messages.appendChild(message)
-    };
+    let ws;
+
+    function openWebSocket(){
+        ws = new WebSocket("ws://localhost:8000/download/ws");
+
+        ws.onopen = function(event){
+            console.log("Connection open in JS");
+        };
+        ws.onclose = function(event){
+            console.log("Connection closed in JS");
+        };
+        ws.onerror = function(error){
+            console.log("Connection error in JS ", error);
+        };
+        ws.onmessage = function(event){
+            console.log("On message in JS");
+            var messages = document.getElementById('download-status');
+            // Show message
+            var message = document.createElement('p');
+            var content = document.createTextNode(event.data);
+            message.appendChild(content);
+            messages.appendChild(message);
+        };
+    }
+
+    function closeWebSocket(){
+        if (ws){
+            ws.close();
+        }
+    }
+
     function sendData(event){
-        var year_select = document.getElementById('year')
-        var gp_select = document.getElementById('grand-prix')
-        var driver_select = document.getElementById('drivers')
-        var session_boxes = document.querySelectorAll('input[name="session"]')
-        var data_boxes = document.querySelectorAll('input[name="data"]')
-        var selected_sessions = []
-        var selected_data = []
+        event.preventDefault();
+        // Clean any previous outputs if any
+        var download_outputs = document.getElementById('download-status');
+        while (download_outputs.firstChild){
+            download_outputs.removeChild(download_outputs.firstChild);
+        }
+        // Create a cancel button that triggers ws.close()
+        var cancel_button = document.createElement('button');
+        var cancel_text = document.createTextNode('Cancel');
+        cancel_button.setAttribute('class', 'mb-3 btn btn-outline-danger');
+        cancel_button.setAttribute('id', 'cancel-button');
+        cancel_button.appendChild(cancel_text);
+        cancel_button.addEventListener('click', function(){
+            closeWebSocket();
+            openWebSocket();
+        }, false);
+        download_outputs.appendChild(cancel_button);
+        // Get elements to send data
+        var year_select = document.getElementById('year');
+        var gp_select = document.getElementById('grand-prix');
+        var driver_select = document.getElementById('drivers');
+        var session_boxes = document.querySelectorAll('input[name="session"]');
+        var data_boxes = document.querySelectorAll('input[name="data"]');
+        var selected_sessions = [];
+        var selected_data = [];
         session_boxes.forEach((checkbox) => {
             if (checkbox.checked){
-                selected_sessions.push(checkbox.value)
+                selected_sessions.push(checkbox.value);
             }
         });
         data_boxes.forEach((checkbox) => {
             if (checkbox.checked){
-                selected_data.push(checkbox.value)
+                selected_data.push(checkbox.value);
             }
         });
         data = {
@@ -56,11 +113,17 @@
             driver: driver_select.value,
             sessions: selected_sessions,
             data_field: selected_data
-        }
+        };
         if (selected_data.length > 0 && selected_sessions.length > 0){
-            ws.send(JSON.stringify(data))
+            if (ws.readyState === WebSocket.OPEN){
+                console.log("Sending message: ", data);
+                ws.send(JSON.stringify(data));
+            }
+            else{
+                console.error("WebSocket connection not open");
+            }
+            //ws.send(JSON.stringify(data));
         }
-        
-        event.preventDefault()
     }
+    openWebSocket();
 </script>
